@@ -11,7 +11,6 @@ class CreateTaskPage extends StatefulWidget {
   @override
   _CreateTaskPageState createState() => _CreateTaskPageState();
 }
-
 class _CreateTaskPageState extends State<CreateTaskPage> {
   final titleController = TextEditingController();
   final quantityController = TextEditingController(text: '1');
@@ -19,7 +18,6 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   var dropdownValue = TimeUnit.DAY;
   bool hasTaskRepeat = true;
   bool hasGoalQuantity = true;
-
   @override
   void initState() {
     super.initState();
@@ -45,7 +43,6 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     intervalController.dispose();
     super.dispose();
   }
-
   Widget _buildTaskTitleTextField() {
     return TextFormField(
       //validator: (t) => 'You done fucked up',
@@ -86,7 +83,6 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
       ],
     );
   }
-
   Widget _buildQuantitySelectorRow() {
     return Row(
       children: <Widget>[
