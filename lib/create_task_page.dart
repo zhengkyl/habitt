@@ -15,7 +15,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   final titleController = TextEditingController();
   final quantityController = TextEditingController(text: '1');
   final intervalController = TextEditingController(text: '1');
-  var dropdownValue = TimeUnit.DAY;
+  var dropdownValue = TimeHelper.DAY;
   bool hasTaskRepeat = true;
   bool hasGoalQuantity = true;
   @override
@@ -24,15 +24,15 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     if (widget.editedTask != null) {
       titleController.text = widget.editedTask.title;
 
-      dropdownValue = widget.editedTask.unit;
+      dropdownValue = widget.editedTask.timeUnit;
 
       hasGoalQuantity = widget.editedTask.goalQuantity > 0;
-      hasTaskRepeat = widget.editedTask.time > 0;
+      hasTaskRepeat = widget.editedTask.timeCoefficient > 0;
 
       quantityController.text =
           hasGoalQuantity ? widget.editedTask.goalQuantity.toString() : '1';
       intervalController.text =
-          hasTaskRepeat ? widget.editedTask.time.toString() : '1';
+          hasTaskRepeat ? widget.editedTask.timeCoefficient.toString() : '1';
     }
   }
 
@@ -210,7 +210,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
             //color: Colors.blue[50],
             margin: EdgeInsets.only(left: 8.0),
             child: DropdownButtonHideUnderline(
-              child: DropdownButton<TimeUnit>(
+              child: DropdownButton<TimeHelper>(
                 isExpanded: true,
                 style: TextStyle(
                     fontWeight: FontWeight.w400,
@@ -218,7 +218,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     fontSize: 28.0),
                 value: dropdownValue,
                 items:
-                    TimeUnit.timeUnits.map<DropdownMenuItem<TimeUnit>>((unit) {
+                    TimeHelper.timeUnits.map<DropdownMenuItem<TimeHelper>>((unit) {
                   return DropdownMenuItem(
                     value: unit,
                     child: Text(
@@ -227,7 +227,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     ),
                   );
                 }).toList(),
-                onChanged: (TimeUnit value) {
+                onChanged: (TimeHelper value) {
                   setState(() {
                     dropdownValue = value;
                   });
@@ -256,15 +256,15 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               int goalQuantity =
                   hasGoalQuantity ? int.parse(quantityController.text) : 0;
               int time = hasTaskRepeat ? int.parse(intervalController.text) : 0;
-              TimeUnit unit = dropdownValue;
+              TimeHelper unit = dropdownValue;
               DateTime startDate = DateTime.now();
               //TODO add color picker / random list
               Color color = Color(0xffffff99);
               if (widget.editedTask != null) {
                 widget.editedTask.title = title;
                 widget.editedTask.goalQuantity = goalQuantity;
-                widget.editedTask.time = time;
-                widget.editedTask.unit = unit;
+                widget.editedTask.timeCoefficient = time;
+                widget.editedTask.timeUnit = unit;
                 widget.editedTask.startDate = startDate;
                 widget.editedTask.color = color;
                 Navigator.pop(context);
@@ -274,8 +274,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   Task(
                     title: title,
                     goalQuantity: goalQuantity,
-                    time: time,
-                    unit: unit,
+                    timeCoefficient: time,
+                    timeUnit: unit,
                     startDate: startDate,
                     color: color,
                   ),

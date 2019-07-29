@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
+import 'package:intl/intl.dart';
+
 import 'create_task_page.dart';
 import 'task.dart';
+
 class TaskListPage extends StatefulWidget {
   //static const routeName = '/';
   TaskListPage({Key key, this.title}) : super(key: key);
@@ -16,17 +20,17 @@ class _TaskListPageState extends State<TaskListPage> {
 
   // List<Task> tasks;
   @override
-  void initState() {    
+  void initState() {
     super.initState();
+    _updateTasks();
+  }
 
-    for(Task task in tasks){
-      if(task.resetDate.isBefore(DateTime.now())){
+  void _updateTasks() {
+    for (Task task in tasks) {
+      if (task.resetDate.isBefore(DateTime.now())) {
         task.resetTask();
-        //TODO timers?
       }
     }
-
-
   }
 
   void _createNewTask() async {
@@ -100,15 +104,29 @@ class _TaskListPageState extends State<TaskListPage> {
                   flex: 1,
                   child: Container(
                     color: Colors.yellow[200],
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    child: Stack(
+                        alignment: AlignmentDirectional.center,
                         children: <Widget>[
-                          Text(
-                            task.completedQuantity.toString(),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 32.0),
-                          ),
-                          task.goalQuantity > 0 ? Text('of '+task.goalQuantity.toString()): Container(),
+                          Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Text(
+                                  task.completedQuantity.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 32.0),
+                                ),
+                                task.goalQuantity > 0
+                                    ? Text('of ' + task.goalQuantity.toString())
+                                    : Container(),
+                              ]),
+                          Positioned(
+                              bottom: 8,
+                              child: Row(
+                                children: <Widget>[
+                                  Text('${task.streak}'),
+                                  Icon(Icons.offline_bolt, size: 16, color: Colors.orange,),
+                                ],
+                              )),
                         ]),
                   )),
               Expanded(
@@ -125,7 +143,14 @@ class _TaskListPageState extends State<TaskListPage> {
                           ),
                         ),
                         Text(
-                          '700000hrs remaining',
+                          'by ${DateFormat('MMM d, y').format(task.resetDate)}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Text(
+                          '${task.resetDate.hour}:${task.resetDate.minute.toString().padLeft(2, '0')}${task.resetDate.hour < 12 ? 'am' : 'pm'}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey,
@@ -133,19 +158,16 @@ class _TaskListPageState extends State<TaskListPage> {
                         ),
                       ]),
                 ),
-
-                //child: Text(task.title),
                 flex: 3,
               ),
             ],
           ),
         ),
         Positioned(
-          bottom: 0.1,
-          right: 0.1,
+          bottom: 0,
+          right: 0,
           child: IconButton(
             icon: Icon(Icons.edit),
-            //TODO
             onPressed: () {
               _editTask(task);
             },

@@ -4,6 +4,13 @@ import 'task.dart';
 import 'create_task_page.dart';
 import 'task_list_page.dart';
 
+
+//TODO
+//edit start date and time
+//edit streak
+//color option
+//visualization
+
 void main() => runApp(MaterialApp(
       title: 'Habitt',
       theme: ThemeData(

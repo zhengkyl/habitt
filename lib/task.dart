@@ -26,8 +26,8 @@ class Task {
   int completedQuantity = 0;
   int goalQuantity;
 
-  int time;
-  TimeUnit unit;
+  int timeCoefficient;
+  TimeHelper timeUnit;
   DateTime startDate;
 
   DateTime resetDate;
@@ -38,8 +38,8 @@ class Task {
   Task({
     @required this.title,
     @required this.goalQuantity,
-    @required this.time,
-    @required this.unit,
+    @required this.timeCoefficient,
+    @required this.timeUnit,
     @required this.startDate,
     @required this.color,
   }) {
@@ -47,37 +47,63 @@ class Task {
   }
 
   void setNextResetDate() {
-    if (unit.value == NonStandardTimeUnit) {
-      switch (unit) {
-        case TimeUnit.MONTH:
+
+    if(completedQuantity < goalQuantity){
+      streak=0;
+    }
+
+    if (timeUnit.value == NonStandardTimeUnit) {
+      switch (timeUnit) {
+        case TimeHelper.MONTH:
+          int resetMonth = resetDate.month + timeCoefficient;
+          int resetYear = resetDate.year;
+
+          ///startDate saves the original date #, so it's not lost when date capped at 30,28 etc
+          int resetDay = startDate.day;
+          if (resetMonth > 12) {
+            resetMonth -= 12;
+            resetYear++;
+          }
+
+          ///Datetime.month is 1 based index, so add 1 to get proper list item
+          int resetMonthLength = TimeHelper.monthLengths[resetMonth + 1];
+          if (resetDate.day > resetMonthLength) {
+            if (resetDate.day == 29 && resetYear % 4 == 0) {
+              resetDay = 29;
+            } else {
+              resetDay = resetMonthLength;
+            }
+          }
+          resetDate = DateTime(resetYear, resetMonth, resetDay, resetDate.hour,
+              resetDate.minute);
           break;
 
-        case TimeUnit.YEAR:
+        case TimeHelper.YEAR:
+          int resetDay;
           //Makes sure doesn't reset on noexistant Feb 29.
           //I'm assuming this won't be used by 2100, so ignore no leap year on 2100 etc
-          int resetDay;
           if (resetDate.day == 29 &&
               resetDate.month == 2 &&
-              (resetDate.year + 1) % 4 == 0) {
+              (resetDate.year + timeCoefficient) % 4 == 0) {
             resetDay = 28;
           } else {
             resetDay = 29;
           }
-          resetDate = DateTime(resetDate.year + 1, resetDate.month, resetDay,
-              resetDate.hour, resetDate.minute);
+          resetDate = DateTime(resetDate.year + timeCoefficient,
+              resetDate.month, resetDay, resetDate.hour, resetDate.minute);
           break;
       }
     } else {
       Duration interval;
-      switch (unit) {
-        case TimeUnit.HOUR:
-          interval = Duration(hours: time);
+      switch (timeUnit) {
+        case TimeHelper.HOUR:
+          interval = Duration(hours: timeCoefficient);
           break;
-        case TimeUnit.DAY:
-          interval = Duration(days: time);
+        case TimeHelper.DAY:
+          interval = Duration(days: timeCoefficient);
           break;
-        case TimeUnit.WEEK:
-          interval = Duration(days: 7 * time);
+        case TimeHelper.WEEK:
+          interval = Duration(days: 7 * timeCoefficient);
           break;
       }
       resetDate = resetDate.add(interval);
@@ -108,23 +134,23 @@ class Task {
 
 enum NonStandardTimeUnit { MONTH, YEAR }
 
-class TimeUnit {
+class TimeHelper {
   final String name;
   final value;
 
-  const TimeUnit._internal(
+  const TimeHelper._internal(
     this.name,
     this.value,
   );
 
-  static const HOUR = const TimeUnit._internal('hour', 1);
-  static const DAY = const TimeUnit._internal('day', 24);
-  static const WEEK = const TimeUnit._internal('week', 24 * 7);
+  static const HOUR = const TimeHelper._internal('hour', 1);
+  static const DAY = const TimeHelper._internal('day', 24);
+  static const WEEK = const TimeHelper._internal('week', 24 * 7);
 
   static const MONTH =
-      const TimeUnit._internal('month', NonStandardTimeUnit.MONTH);
+      const TimeHelper._internal('month', NonStandardTimeUnit.MONTH);
   static const YEAR =
-      const TimeUnit._internal('year', NonStandardTimeUnit.YEAR);
+      const TimeHelper._internal('year', NonStandardTimeUnit.YEAR);
 
   static const timeUnits = [
     HOUR,
@@ -132,6 +158,21 @@ class TimeUnit {
     WEEK,
     MONTH,
     YEAR,
+  ];
+
+  static const monthLengths = [
+    31, //January
+    28, //February
+    31, //March
+    30, //April
+    31, //May
+    30, //June
+    31, //July
+    31, //August
+    30, //September
+    31, //October
+    30, //November
+    31, //December
   ];
   // static const SUNDAY = const TimeUnit._internal('Sunday', DateTime.sunday);
   // static const MONDAY = const TimeUnit._internal('Monday',DateTime.monday);
