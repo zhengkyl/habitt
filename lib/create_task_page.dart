@@ -11,6 +11,7 @@ class CreateTaskPage extends StatefulWidget {
   @override
   _CreateTaskPageState createState() => _CreateTaskPageState();
 }
+
 class _CreateTaskPageState extends State<CreateTaskPage> {
   final titleController = TextEditingController();
   final quantityController = TextEditingController(text: '1');
@@ -18,10 +19,12 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   var dropdownValue = TimeHelper.DAY;
   bool hasTaskRepeat = true;
   bool hasGoalQuantity = true;
+  ColorPair colorPair = ColorPair.YELLOW;
   @override
   void initState() {
     super.initState();
     if (widget.editedTask != null) {
+      colorPair = widget.editedTask.colorPair;
       titleController.text = widget.editedTask.title;
 
       dropdownValue = widget.editedTask.timeUnit;
@@ -43,6 +46,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     intervalController.dispose();
     super.dispose();
   }
+
   Widget _buildTaskTitleTextField() {
     return TextFormField(
       //validator: (t) => 'You done fucked up',
@@ -83,6 +87,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
       ],
     );
   }
+
   Widget _buildQuantitySelectorRow() {
     return Row(
       children: <Widget>[
@@ -217,8 +222,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     color: Colors.black,
                     fontSize: 28.0),
                 value: dropdownValue,
-                items:
-                    TimeHelper.timeUnits.map<DropdownMenuItem<TimeHelper>>((unit) {
+                items: TimeHelper.TIME_UNITS
+                    .map<DropdownMenuItem<TimeHelper>>((unit) {
                   return DropdownMenuItem(
                     value: unit,
                     child: Text(
@@ -248,25 +253,25 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
           FlatButton(
             child: Text(
               'SAVE',
-              style: TextStyle(color: Colors.white, fontSize: 18.0),
+              style: TextStyle( fontSize: 18.0),
             ),
             shape: CircleBorder(),
             onPressed: () {
-              String title = titleController.text.trim().isNotEmpty ? titleController.text.trim() : 'Untitled Task';
+              String title = titleController.text.trim().isNotEmpty
+                  ? titleController.text.trim()
+                  : 'Untitled Task';
               int goalQuantity =
                   hasGoalQuantity ? int.parse(quantityController.text) : 0;
               int time = hasTaskRepeat ? int.parse(intervalController.text) : 0;
               TimeHelper unit = dropdownValue;
               DateTime startDate = DateTime.now();
-              //TODO add color picker / random list
-              Color color = Color(0xffffff99);
               if (widget.editedTask != null) {
                 widget.editedTask.title = title;
                 widget.editedTask.goalQuantity = goalQuantity;
                 widget.editedTask.timeCoefficient = time;
                 widget.editedTask.timeUnit = unit;
                 widget.editedTask.startDate = startDate;
-                widget.editedTask.color = color;
+                widget.editedTask.colorPair = colorPair;
                 Navigator.pop(context);
               } else {
                 Navigator.pop(
@@ -277,7 +282,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     timeCoefficient: time,
                     timeUnit: unit,
                     startDate: startDate,
-                    color: color,
+                    colorPair: colorPair,
                   ),
                 );
               }
@@ -306,8 +311,42 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   child: _buildRepeatIntervalSelector(),
                 )
               : Container(),
+          Padding(
+            padding: const EdgeInsets.only(top: 16, bottom: 8.0),
+            child: Text(
+              'Card Color',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20.0,
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: ColorPair.COLOR_PAIRS
+                .map((pair) => Column(
+                      children: <Widget>[
+                        Container(
+                          width: 16,
+                          height: 16,
+                          color: pair.primaryColor,
+                        ),
+                        Radio(
+                          //title: Text(pair.title),
+                          value: pair,
+                          groupValue: colorPair,
+                          onChanged: (ColorPair value) {
+                            setState(() {
+                              colorPair = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ))
+                .toList(),
+          ),
           Container(
-            margin: EdgeInsets.all(16.0),
+            margin: EdgeInsets.only(left: 16.0, right: 16, top: 32),
             child: RaisedButton(
               child: Text(
                 'DELETE',
@@ -320,10 +359,35 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   borderRadius: BorderRadius.circular(4.0)),
               color: Colors.red[400],
               onPressed: () {
-                Navigator.pop(
-                  context,
-                  widget.editedTask,
-                );
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text('Delete this task?'),
+                      content: Text('Do you really want to delete this task?'),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text('Yeet it'),
+                          onPressed: () {
+                            //Here is some quality code
+                            Navigator.pop(
+                              context,
+                            );
+                            Navigator.pop(
+                              context,
+                              widget.editedTask,
+                            );
+                          },
+                        ),
+                        FlatButton(
+                          child: Text('wait no'),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    );
+                  });
               },
             ),
           ),
@@ -335,4 +399,3 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
 //TODO LIST
 //countdown + reset on interval
 //form + validate title
-

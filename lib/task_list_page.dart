@@ -55,7 +55,7 @@ class _TaskListPageState extends State<TaskListPage> {
 
   Widget _buildTaskItem(BuildContext context, Task task) {
     return Card(
-      color: task.color,
+      color: task.isComplete ? task.colorPair.secondaryColor : task.colorPair.primaryColor,
       clipBehavior: Clip.antiAlias,
       // constraints: BoxConstraints.loose(Size(1000, 1000)),
       // decoration: BoxDecoration(
@@ -75,8 +75,8 @@ class _TaskListPageState extends State<TaskListPage> {
                         child: FlatButton(
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.zero),
-                          color: Colors.lightBlueAccent,
-                          child: Icon(Icons.add),
+                          color: Colors.grey[300],
+                          child: Icon(Icons.add,),
                           onPressed: () {
                             setState(() {
                               task.doTask();
@@ -89,8 +89,8 @@ class _TaskListPageState extends State<TaskListPage> {
                         child: FlatButton(
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.zero),
-                          color: Colors.redAccent,
-                          child: Icon(Icons.remove),
+                          color: Colors.black38,
+                          child: Icon(Icons.remove, color: Colors.white,),
                           onPressed: () {
                             setState(() {
                               task.undoTask();
@@ -103,7 +103,7 @@ class _TaskListPageState extends State<TaskListPage> {
               Expanded(
                   flex: 1,
                   child: Container(
-                    color: Colors.yellow[200],
+                    color: task.colorPair.secondaryColor,
                     child: Stack(
                         alignment: AlignmentDirectional.center,
                         children: <Widget>[
@@ -146,14 +146,14 @@ class _TaskListPageState extends State<TaskListPage> {
                           'by ${DateFormat('MMM d, y').format(task.resetDate)}',
                           style: TextStyle(
                             fontSize: 16,
-                            color: Colors.grey,
+                            color: Colors.black54,
                           ),
                         ),
                         Text(
                           '${task.resetDate.hour}:${task.resetDate.minute.toString().padLeft(2, '0')}${task.resetDate.hour < 12 ? 'am' : 'pm'}',
                           style: TextStyle(
                             fontSize: 16,
-                            color: Colors.grey,
+                            color: Colors.black54,
                           ),
                         ),
                       ]),

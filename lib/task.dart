@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 
-// class TaskItem extends StatefulWidget {
-//   @override
-//   _TaskItemState createState() => _TaskItemState();
-// }
+class ColorPair{
+  final Color primaryColor;
+  final Color secondaryColor;
+  final String title;
 
-// class _TaskItemState extends State<TaskItem> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container();
-//   }
-// }
-// class TaskMessage{
-//   final Task task;
-//   final TaskStatus taskStatus;
-//   TaskMessage({this.task, this.taskStatus});
-// }
+  const ColorPair._internal(this.primaryColor, this.secondaryColor, this.title);
 
-// enum TaskStatus{CREATE, DELETE}
+  static const RED = ColorPair._internal(const Color(0xffff6666),const Color(0xffff3333), 'Red');
+  static const ORANGE = ColorPair._internal(const Color(0xffffa64d),const Color(0xffff8000),  'Orange');
+  static const YELLOW = ColorPair._internal(const Color(0xffffd24d),const Color(0xffffbf00),  'Yellow');
+  static const GREEN = ColorPair._internal( const Color(0xff86f986),const Color(0xff55f655),'Green');
+  static const BLUE = ColorPair._internal(const Color(0xff99ccff),const Color(0xff4da6ff),  'Blue');
+  static const PURPLE = ColorPair._internal(const Color(0xfffa9efa), const Color(0xfff655f6), 'Purple');
+  static const WHITE = ColorPair._internal(const Color(0xffececec), const Color(0xffd9d9d9), 'White');
+
+  static const COLOR_PAIRS =[
+    RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, WHITE,
+  ];
+}
+
 
 class Task {
   String title;
@@ -32,7 +34,7 @@ class Task {
 
   DateTime resetDate;
 
-  Color color;
+  ColorPair colorPair;
   int streak = 0;
 
   Task({
@@ -41,13 +43,12 @@ class Task {
     @required this.timeCoefficient,
     @required this.timeUnit,
     @required this.startDate,
-    @required this.color,
+    @required this.colorPair,
   }) {
     resetDate = startDate;
   }
 
   void setNextResetDate() {
-
     if(completedQuantity < goalQuantity){
       streak=0;
     }
@@ -66,7 +67,7 @@ class Task {
           }
 
           ///Datetime.month is 1 based index, so add 1 to get proper list item
-          int resetMonthLength = TimeHelper.monthLengths[resetMonth + 1];
+          int resetMonthLength = TimeHelper.MONTH_LENGTHS[resetMonth + 1];
           if (resetDate.day > resetMonthLength) {
             if (resetDate.day == 29 && resetYear % 4 == 0) {
               resetDay = 29;
@@ -152,7 +153,7 @@ class TimeHelper {
   static const YEAR =
       const TimeHelper._internal('year', NonStandardTimeUnit.YEAR);
 
-  static const timeUnits = [
+  static const TIME_UNITS = [
     HOUR,
     DAY,
     WEEK,
@@ -160,7 +161,7 @@ class TimeHelper {
     YEAR,
   ];
 
-  static const monthLengths = [
+  static const MONTH_LENGTHS = [
     31, //January
     28, //February
     31, //March
@@ -174,11 +175,4 @@ class TimeHelper {
     30, //November
     31, //December
   ];
-  // static const SUNDAY = const TimeUnit._internal('Sunday', DateTime.sunday);
-  // static const MONDAY = const TimeUnit._internal('Monday',DateTime.monday);
-  // static const TUESDAY = const TimeUnit._internal('Tuesday',DateTime.tuesday);
-  // static const WEDNESDAY = const TimeUnit._internal('Wednesday',DateTime.wednesday);
-  // static const THURSDAY = const TimeUnit._internal('Thursday',DateTime.thursday);
-  // static const FRIEDAY = const TimeUnit._internal('Friday',DateTime.friday);
-  // static const SATURDAY = const TimeUnit._internal('Saturday',DateTime.saturday);
 }

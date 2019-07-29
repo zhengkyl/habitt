@@ -4,21 +4,14 @@ import 'task.dart';
 import 'create_task_page.dart';
 import 'task_list_page.dart';
 
-
-//TODO
-//edit start date and time
-//edit streak
-//color option
-//visualization
-
 void main() => runApp(MaterialApp(
       title: 'Habitt',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.amber,
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => TaskListPage(title: 'Hello title'),
+        '/': (context) => TaskListPage(title: 'Habitt'),
       },
       onGenerateRoute: (settings) {
         if (settings.name == CreateTaskPage.routeName) {
@@ -32,25 +25,3 @@ void main() => runApp(MaterialApp(
         }
       },
     ));
-
-// void main() => runApp(HabittApp());
-
-
-
-// class HabittApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Habitt',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       initialRoute: '/',
-//       routes: {
-//         '/':(context)=>TaskListPage(title: 'Hello title'),
-//         '/createTask':(context)=>CreateTaskPage(),
-//       },
-//       //home: TaskListPage(title: 'Flutter Demo Home Page'),
-//     );
-//   }
-// }
