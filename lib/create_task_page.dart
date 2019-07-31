@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'task.dart';
 
 class CreateTaskPage extends StatefulWidget {
@@ -20,6 +21,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   bool hasTaskRepeat = true;
   bool hasGoalQuantity = true;
   ColorPair colorPair = ColorPair.YELLOW;
+  DateTime resetDate;
+  DateTime startDate;
   @override
   void initState() {
     super.initState();
@@ -36,6 +39,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
           hasGoalQuantity ? widget.editedTask.goalQuantity.toString() : '1';
       intervalController.text =
           hasTaskRepeat ? widget.editedTask.timeCoefficient.toString() : '1';
+
+      resetDate = widget.editedTask.resetDate;
     }
   }
 
@@ -56,7 +61,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
         labelText: 'Task Title',
         border: OutlineInputBorder(
             borderSide: BorderSide.none,
-            borderRadius: BorderRadius.circular(12.0)),
+            borderRadius: BorderRadius.circular(8.0)),
         fillColor: Colors.blue[50],
         filled: true,
       ),
@@ -123,7 +128,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               labelText: 'Quantity',
               border: OutlineInputBorder(
                   borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(12.0)),
+                  borderRadius: BorderRadius.circular(8.0)),
               fillColor: Colors.blue[50],
               filled: true,
             ),
@@ -193,7 +198,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 labelText: 'Interval',
                 border: OutlineInputBorder(
                     borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(12.0)),
+                    borderRadius: BorderRadius.circular(8.0)),
                 fillColor: Colors.blue[50],
                 filled: true,
               ),
@@ -210,7 +215,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
             decoration: ShapeDecoration(
                 color: Colors.blue[50],
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(8.0),
                 )),
             //color: Colors.blue[50],
             margin: EdgeInsets.only(left: 8.0),
@@ -245,6 +250,61 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     );
   }
 
+  Widget _buildDateTimeSelector() {
+    return Column(children: <Widget>[
+      Padding(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: Text(
+          widget.editedTask == null ? 'Starting' : 'Next reset',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 20),
+        ),
+      ),
+      Container(
+          decoration: BoxDecoration(
+              color: Colors.blue[50], borderRadius: BorderRadius.circular(8)),
+          child: widget.editedTask == null
+              ? FlatButton(
+                  child: Text(
+                    startDate == null
+                        ? 'Right now'
+                        : '${DateFormat('MMM d, y').format(startDate)}',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  onPressed: () => showDatePicker(
+                    context: context,
+                    firstDate: DateTime.now(),
+                    initialDate: startDate == null ? DateTime.now() : startDate,
+                    lastDate: DateTime(6969),
+                  ).then((newDate) {
+                    if (newDate != null) {
+                      setState(() {
+                        startDate = newDate;
+                      });
+                    }
+                  }),
+                )
+              : FlatButton(
+                  child: Text(
+                    '${DateFormat('MMM d, y').format(resetDate)}',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  onPressed: () => showDatePicker(
+                    context: context,
+                    firstDate: DateTime.now(),
+                    initialDate: resetDate,
+                    lastDate: DateTime(6969),
+                  ).then((newDate) {
+                    if (newDate != null) {
+                      setState(() {
+                        resetDate = newDate;
+                      });
+                    }
+                  }),
+                )),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -253,7 +313,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
           FlatButton(
             child: Text(
               'SAVE',
-              style: TextStyle( fontSize: 18.0),
+              style: TextStyle(fontSize: 18.0),
             ),
             shape: CircleBorder(),
             onPressed: () {
@@ -264,7 +324,6 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   hasGoalQuantity ? int.parse(quantityController.text) : 0;
               int time = hasTaskRepeat ? int.parse(intervalController.text) : 0;
               TimeHelper unit = dropdownValue;
-              DateTime startDate = DateTime.now();
               if (widget.editedTask != null) {
                 widget.editedTask.title = title;
                 widget.editedTask.goalQuantity = goalQuantity;
@@ -272,6 +331,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 widget.editedTask.timeUnit = unit;
                 widget.editedTask.startDate = startDate;
                 widget.editedTask.colorPair = colorPair;
+                widget.editedTask.resetDate = resetDate;
                 Navigator.pop(context);
               } else {
                 Navigator.pop(
@@ -281,7 +341,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     goalQuantity: goalQuantity,
                     timeCoefficient: time,
                     timeUnit: unit,
-                    startDate: startDate,
+                    startDate: startDate == null ? DateTime.now() : startDate,
                     colorPair: colorPair,
                   ),
                 );
@@ -311,10 +371,11 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   child: _buildRepeatIntervalSelector(),
                 )
               : Container(),
+          hasTaskRepeat ? _buildDateTimeSelector() : Container(),
           Padding(
             padding: const EdgeInsets.only(top: 16, bottom: 8.0),
             child: Text(
-              'Card Color',
+              'Task Color',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20.0,
@@ -360,34 +421,35 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               color: Colors.red[400],
               onPressed: () {
                 showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text('Delete this task?'),
-                      content: Text('Do you really want to delete this task?'),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: Text('Yeet it'),
-                          onPressed: () {
-                            //Here is some quality code
-                            Navigator.pop(
-                              context,
-                            );
-                            Navigator.pop(
-                              context,
-                              widget.editedTask,
-                            );
-                          },
-                        ),
-                        FlatButton(
-                          child: Text('wait no'),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ],
-                    );
-                  });
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Delete this task?'),
+                        content:
+                            Text('Do you really want to delete this task?'),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text('Yeet it'),
+                            onPressed: () {
+                              //Here is some quality code
+                              Navigator.pop(
+                                context,
+                              );
+                              Navigator.pop(
+                                context,
+                                widget.editedTask,
+                              );
+                            },
+                          ),
+                          FlatButton(
+                            child: Text('wait no'),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      );
+                    });
               },
             ),
           ),

@@ -32,6 +32,7 @@ class Task {
   TimeHelper timeUnit;
   DateTime startDate;
 
+  int fullResetDay;
   DateTime resetDate;
 
   ColorPair colorPair;
@@ -46,9 +47,15 @@ class Task {
     @required this.colorPair,
   }) {
     resetDate = startDate;
+    fullResetDay = startDate.day;
+    incrementResetDate();
   }
 
-  void setNextResetDate() {
+  void incrementResetDate() {
+    //This is a shitty way of determining no reset, but guess what thats what i'm doing
+    if(timeCoefficient == 0 ){
+      return;
+    }
     if(completedQuantity < goalQuantity){
       streak=0;
     }
@@ -59,8 +66,8 @@ class Task {
           int resetMonth = resetDate.month + timeCoefficient;
           int resetYear = resetDate.year;
 
-          ///startDate saves the original date #, so it's not lost when date capped at 30,28 etc
-          int resetDay = startDate.day;
+          ///fullResetDay saves the original date #, so it's not lost when date capped at 30,28 etc
+          int flooredResetDay = fullResetDay;
           if (resetMonth > 12) {
             resetMonth -= 12;
             resetYear++;
@@ -70,28 +77,28 @@ class Task {
           int resetMonthLength = TimeHelper.MONTH_LENGTHS[resetMonth + 1];
           if (resetDate.day > resetMonthLength) {
             if (resetDate.day == 29 && resetYear % 4 == 0) {
-              resetDay = 29;
+              flooredResetDay = 29;
             } else {
-              resetDay = resetMonthLength;
+              flooredResetDay = resetMonthLength;
             }
           }
-          resetDate = DateTime(resetYear, resetMonth, resetDay, resetDate.hour,
+          resetDate = DateTime(resetYear, resetMonth, flooredResetDay, resetDate.hour,
               resetDate.minute);
           break;
 
         case TimeHelper.YEAR:
-          int resetDay;
+          int flooredResetDay;
           //Makes sure doesn't reset on noexistant Feb 29.
           //I'm assuming this won't be used by 2100, so ignore no leap year on 2100 etc
           if (resetDate.day == 29 &&
               resetDate.month == 2 &&
               (resetDate.year + timeCoefficient) % 4 == 0) {
-            resetDay = 28;
+            flooredResetDay = 28;
           } else {
-            resetDay = 29;
+            flooredResetDay = resetDate.day;
           }
           resetDate = DateTime(resetDate.year + timeCoefficient,
-              resetDate.month, resetDay, resetDate.hour, resetDate.minute);
+              resetDate.month, flooredResetDay, resetDate.hour, resetDate.minute);
           break;
       }
     } else {
@@ -130,7 +137,9 @@ class Task {
   void resetTask() {
     completedQuantity = 0;
     isComplete = false;
+    incrementResetDate();
   }
+
 }
 
 enum NonStandardTimeUnit { MONTH, YEAR }

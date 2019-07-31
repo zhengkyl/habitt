@@ -55,7 +55,9 @@ class _TaskListPageState extends State<TaskListPage> {
 
   Widget _buildTaskItem(BuildContext context, Task task) {
     return Card(
-      color: task.isComplete ? task.colorPair.secondaryColor : task.colorPair.primaryColor,
+      color: task.isComplete
+          ? task.colorPair.secondaryColor
+          : task.colorPair.primaryColor,
       clipBehavior: Clip.antiAlias,
       // constraints: BoxConstraints.loose(Size(1000, 1000)),
       // decoration: BoxDecoration(
@@ -76,7 +78,9 @@ class _TaskListPageState extends State<TaskListPage> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.zero),
                           color: Colors.grey[300],
-                          child: Icon(Icons.add,),
+                          child: Icon(
+                            Icons.add,
+                          ),
                           onPressed: () {
                             setState(() {
                               task.doTask();
@@ -90,7 +94,10 @@ class _TaskListPageState extends State<TaskListPage> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.zero),
                           color: Colors.black38,
-                          child: Icon(Icons.remove, color: Colors.white,),
+                          child: Icon(
+                            Icons.remove,
+                            color: Colors.white,
+                          ),
                           onPressed: () {
                             setState(() {
                               task.undoTask();
@@ -124,7 +131,11 @@ class _TaskListPageState extends State<TaskListPage> {
                               child: Row(
                                 children: <Widget>[
                                   Text('${task.streak}'),
-                                  Icon(Icons.offline_bolt, size: 16, color: Colors.orange,),
+                                  Icon(
+                                    Icons.offline_bolt,
+                                    size: 16,
+                                    color: Colors.orange,
+                                  ),
                                 ],
                               )),
                         ]),
@@ -149,8 +160,9 @@ class _TaskListPageState extends State<TaskListPage> {
                             color: Colors.black54,
                           ),
                         ),
+                        //lol
                         Text(
-                          '${task.resetDate.hour}:${task.resetDate.minute.toString().padLeft(2, '0')}${task.resetDate.hour < 12 ? 'am' : 'pm'}',
+                          '${task.resetDate.hour > 12 ? task.resetDate.hour - 12 : task.resetDate.hour == 0 ? '12' : task.resetDate.hour}:${task.resetDate.minute.toString().padLeft(2, '0')}${task.resetDate.hour < 12 ? 'am' : 'pm'}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.black54,
