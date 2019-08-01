@@ -1,30 +1,42 @@
 import 'package:flutter/material.dart';
 
-class ColorPair{
+class ColorPair {
   final Color primaryColor;
   final Color secondaryColor;
   final String title;
 
   const ColorPair._internal(this.primaryColor, this.secondaryColor, this.title);
 
-  static const RED = ColorPair._internal(const Color(0xffff6666),const Color(0xffff3333), 'Red');
-  static const ORANGE = ColorPair._internal(const Color(0xffffa64d),const Color(0xffff8000),  'Orange');
-  static const YELLOW = ColorPair._internal(const Color(0xffffd24d),const Color(0xffffbf00),  'Yellow');
-  static const GREEN = ColorPair._internal( const Color(0xff86f986),const Color(0xff55f655),'Green');
-  static const BLUE = ColorPair._internal(const Color(0xff99ccff),const Color(0xff4da6ff),  'Blue');
-  static const PURPLE = ColorPair._internal(const Color(0xfffa9efa), const Color(0xfff655f6), 'Purple');
-  static const WHITE = ColorPair._internal(const Color(0xffececec), const Color(0xffd9d9d9), 'White');
+  static const RED = ColorPair._internal(
+      const Color(0xffff6666), const Color(0xffff3333), 'Red');
+  static const ORANGE = ColorPair._internal(
+      const Color(0xffffa64d), const Color(0xffff8000), 'Orange');
+  static const YELLOW = ColorPair._internal(
+      const Color(0xffffd24d), const Color(0xffffbf00), 'Yellow');
+  static const GREEN = ColorPair._internal(
+      const Color(0xff86f986), const Color(0xff55f655), 'Green');
+  static const BLUE = ColorPair._internal(
+      const Color(0xff99ccff), const Color(0xff4da6ff), 'Blue');
+  static const PURPLE = ColorPair._internal(
+      const Color(0xfffa9efa), const Color(0xfff655f6), 'Purple');
+  static const WHITE = ColorPair._internal(
+      const Color(0xffececec), const Color(0xffd9d9d9), 'White');
 
-  static const COLOR_PAIRS =[
-    RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, WHITE,
+  static const COLOR_PAIRS = [
+    RED,
+    ORANGE,
+    YELLOW,
+    GREEN,
+    BLUE,
+    PURPLE,
+    WHITE,
   ];
 }
-
 
 class Task {
   String title;
   bool isComplete = false;
-
+  bool isPositive;
   int completedQuantity = 0;
   int goalQuantity;
 
@@ -38,6 +50,9 @@ class Task {
   ColorPair colorPair;
   int streak = 0;
 
+  ///Saves streak value if streak broken to allow undo mistaken + or -
+  int oldStreakValue;
+
   Task({
     @required this.title,
     @required this.goalQuantity,
@@ -45,6 +60,7 @@ class Task {
     @required this.timeUnit,
     @required this.startDate,
     @required this.colorPair,
+    @required this.isPositive,
   }) {
     resetDate = startDate;
     fullResetDay = startDate.day;
@@ -53,10 +69,10 @@ class Task {
 
   void incrementResetDate() {
     //This is a shitty way of determining no reset, but guess what thats what i'm doing
-    if(timeCoefficient == 0 ){
+    if (timeCoefficient == 0) {
       return;
     }
-    if(completedQuantity < goalQuantity){
+    if (isComplete && !isPositive || !isComplete && isPositive) {
       streak=0;
     }
 
@@ -82,8 +98,8 @@ class Task {
               flooredResetDay = resetMonthLength;
             }
           }
-          resetDate = DateTime(resetYear, resetMonth, flooredResetDay, resetDate.hour,
-              resetDate.minute);
+          resetDate = DateTime(resetYear, resetMonth, flooredResetDay,
+              resetDate.hour, resetDate.minute);
           break;
 
         case TimeHelper.YEAR:
@@ -97,8 +113,12 @@ class Task {
           } else {
             flooredResetDay = resetDate.day;
           }
-          resetDate = DateTime(resetDate.year + timeCoefficient,
-              resetDate.month, flooredResetDay, resetDate.hour, resetDate.minute);
+          resetDate = DateTime(
+              resetDate.year + timeCoefficient,
+              resetDate.month,
+              flooredResetDay,
+              resetDate.hour,
+              resetDate.minute);
           break;
       }
     } else {
@@ -122,14 +142,23 @@ class Task {
     completedQuantity++;
     if (completedQuantity == goalQuantity) {
       isComplete = true;
-      streak++;
+      if (isPositive) {
+        streak++;
+      }else{
+        oldStreakValue = streak;
+        streak =0;
+      }
     }
   }
 
   void undoTask() {
     if (completedQuantity == goalQuantity) {
       isComplete = false;
-      streak--;
+      if (isPositive) {
+        streak--;
+      }else{
+        streak = oldStreakValue;
+      }
     }
     completedQuantity--;
   }
@@ -139,7 +168,6 @@ class Task {
     isComplete = false;
     incrementResetDate();
   }
-
 }
 
 enum NonStandardTimeUnit { MONTH, YEAR }

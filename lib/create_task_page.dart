@@ -20,6 +20,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   var dropdownValue = TimeHelper.DAY;
   bool hasTaskRepeat = true;
   bool hasGoalQuantity = true;
+  bool isTaskPositive = true;
   ColorPair colorPair = ColorPair.YELLOW;
   DateTime resetDate;
   DateTime startDate;
@@ -76,7 +77,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Text(
-          'Goal Quantity',
+          isTaskPositive ? 'Goal Quantity' : 'Limit Quanity',
           style: TextStyle(
             fontSize: 20.0,
           ),
@@ -268,7 +269,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   child: Text(
                     startDate == null
                         ? 'Right now'
-                        : '${DateFormat('MMM d, y').format(startDate)}',
+                        : '${DateFormat('MMM d, y').format(startDate)} ${startDate.hour > 12 ? startDate.hour - 12 : startDate.hour == 0 ? '12' : startDate.hour}:${startDate.minute.toString().padLeft(2, '0')}${startDate.hour < 12 ? 'am' : 'pm'}',
                     style: TextStyle(fontSize: 20),
                   ),
                   onPressed: () => showDatePicker(
@@ -278,15 +279,23 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     lastDate: DateTime(6969),
                   ).then((newDate) {
                     if (newDate != null) {
-                      setState(() {
-                        startDate = newDate;
+                      showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),)
+                          .then((newTime) {
+                        if (newTime != null) {
+                          setState(() {
+                            startDate = DateTime(newDate.year, newDate.month,
+                                newDate.day, newTime.hour, newTime.minute);
+                          });
+                        }
                       });
                     }
                   }),
                 )
               : FlatButton(
                   child: Text(
-                    '${DateFormat('MMM d, y').format(resetDate)}',
+                    '${DateFormat('MMM d, y').format(resetDate)} ${resetDate.hour > 12 ? resetDate.hour - 12 : resetDate.hour == 0 ? '12' : resetDate.hour}:${resetDate.minute.toString().padLeft(2, '0')}${resetDate.hour < 12 ? 'am' : 'pm'}',
                     style: TextStyle(fontSize: 20),
                   ),
                   onPressed: () => showDatePicker(
@@ -296,13 +305,49 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     lastDate: DateTime(6969),
                   ).then((newDate) {
                     if (newDate != null) {
-                      setState(() {
-                        resetDate = newDate;
+                      showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.fromDateTime(resetDate))
+                          .then((newTime) {
+                        if (newTime != null) {
+                          setState(() {
+                            resetDate = DateTime(newDate.year, newDate.month,
+                                newDate.day, newTime.hour, newTime.minute);
+                          });
+                        }
                       });
                     }
                   }),
                 )),
     ]);
+  }
+
+  Widget _buildTaskAlignmentSwitch() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          'Positve Habit',
+          style: TextStyle(
+            fontSize: 20.0,
+          ),
+        ),
+        Switch(
+          value: isTaskPositive,
+          onChanged: (bool value) {
+            setState(() {
+              isTaskPositive = value;
+            });
+          },
+        ),
+        Text(
+          'Negative Habit',
+          style: TextStyle(
+            fontSize: 20.0,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -332,6 +377,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 widget.editedTask.startDate = startDate;
                 widget.editedTask.colorPair = colorPair;
                 widget.editedTask.resetDate = resetDate;
+                widget.editedTask.isPositive = isTaskPositive;
                 Navigator.pop(context);
               } else {
                 Navigator.pop(
@@ -343,6 +389,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     timeUnit: unit,
                     startDate: startDate == null ? DateTime.now() : startDate,
                     colorPair: colorPair,
+                    isPositive: isTaskPositive,
                   ),
                 );
               }
@@ -357,6 +404,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
             padding: EdgeInsets.symmetric(vertical: 8.0),
             child: _buildTaskTitleTextField(),
           ),
+          _buildTaskAlignmentSwitch(),
           _buildGoalQuantitySwitch(),
           hasGoalQuantity
               ? Padding(
