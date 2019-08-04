@@ -6,8 +6,6 @@ import 'task.dart';
 class CreateTaskPage extends StatefulWidget {
   static const routeName = '/createTask';
   final Task editedTask;
-  //Not using a key, because I don't know how to use them and it fucks this up somehow
-  //TODO maybe need to add a key to implement reorderable task list
   CreateTaskPage({this.editedTask});
   @override
   _CreateTaskPageState createState() => _CreateTaskPageState();
@@ -506,6 +504,4 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     );
   }
 }
-//TODO LIST
-//countdown + reset on interval
-//form + validate title
+
