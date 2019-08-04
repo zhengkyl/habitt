@@ -327,7 +327,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Text(
-          'Positve Habit',
+          'Negative Habit',
           style: TextStyle(
             fontSize: 20.0,
           ),
@@ -341,7 +341,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
           },
         ),
         Text(
-          'Negative Habit',
+          'Positive Habit',
           style: TextStyle(
             fontSize: 20.0,
           ),
